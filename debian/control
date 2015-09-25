@@ -1,0 +1,37 @@
+Source: spp
+Maintainer: Diane Trout <diane@debian.org>
+Section: gnu-r
+Priority: optional
+Build-Depends: debhelper (>= 9),
+               cdbs,
+               r-base-dev,
+               r-cran-catools,
+               libboost1.55-dev,
+Standards-Version: 3.9.6
+#Vcs-Browser: http://anonscm.debian.org/viewvc/<team-dir>
+#Vcs-Svn: svn://anonscm.debian.org/<team-dir>
+Homepage: http://compbio.med.harvard.edu/Supplements/ChIP-seq/
+
+Package: r-other-spp
+Architecture: any
+Depends: ${R:Depends},
+         ${misc:Depends},
+         r-cran-catools,
+Description: ChIP-Seq processing pipeline
+ ChIP-Seq processing pipeline.
+   * Assess overall DNA-binding signals in the data and select
+     appropriate quality of tag alignment.
+   * Discard or restrict positions with abnormally high number
+     of tags.
+   * Calculate genome-wide profiles of smoothed tag density and
+     save them in WIG files for viewing in other browsers.
+   * Calculate genome-wide profiles providing conservative
+     statistical estimates of fold enrichment ratios along the
+     genome. These can be exported for browser viewing, or
+     thresholded to determine regions of significant
+     enrichment/depletion.
+   * Determine statistically significant point binding positions
+   * Assess whether the set of point binding positions detected
+     at a current sequencing depth meets saturation criteria, and
+     if does not, estimate what sequencing depth would be required
+     to do so.

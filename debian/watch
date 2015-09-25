@@ -1,0 +1,2 @@
+version=3
+http://compbio.med.harvard.edu/Supplements/ChIP-seq/ .*/spp_([0-9\.]+).tar.gz
