@@ -1,0 +1,13 @@
+Author: Diane Trout <diane@ghic.org>
+Description: When building with R 3.3.x the build attempted to include
+ the C++ libraries in a block marked extern "C" which failed miserably.
+ this disables that which is probably appropriate given how old SPP is
+--- a/src/Makevars.in
++++ b/src/Makevars.in
+@@ -1,4 +1,3 @@
+ PKG_LIBS=@LIBS@ -lz
+-PKG_CFLAGS=-I./ -D_FASTMAP -DMAQ_LONGREADS @HAVE_LIBBZ2@ 
+-PKG_CXXFLAGS=-I./ -D_FASTMAP -DMAQ_LONGREADS	@HAVE_LIBBZ2@ 
+-
++PKG_CFLAGS=-I./ -D_FASTMAP -DMAQ_LONGREADS -DDO_NOT_USE_CXX_HEADERS @HAVE_LIBBZ2@
++PKG_CXXFLAGS=-I./ -D_FASTMAP -DMAQ_LONGREADS -DDO_NOT_USE_CXX_HEADERS @HAVE_LIBBZ2@
