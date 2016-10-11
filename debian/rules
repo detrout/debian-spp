@@ -2,3 +2,6 @@
 
 debRreposname := other
 include /usr/share/R/debian/r-cran.mk
+
+clean::
+	-rm src/Makevars src/config.h
