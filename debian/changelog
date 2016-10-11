@@ -1,6 +1,7 @@
 spp (1.11-1) UNRELEASED; urgency=medium
 
   * Initial release. (Closes: #XXXXXX)
+  * Update standards-version to 3.9.8, no changes needed
   * Fix build problems with R 3.3
 
  -- Diane Trout <diane@ghic.org>  Fri, 25 Sep 2015 10:23:58 -0700
