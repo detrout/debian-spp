@@ -5,5 +5,8 @@ spp (1.11-1) UNRELEASED; urgency=medium
   * Fix build problems with R 3.3
   * Use libboost-dev instead of specific version
   * remove auto-generated files in debian clean step
+  * Update code for g++ 6 by removing deprecated classes
+    - a few ext/hash_'s were changed
+    - strstring was removed
 
  -- Diane Trout <diane@ghic.org>  Fri, 25 Sep 2015 10:23:58 -0700
