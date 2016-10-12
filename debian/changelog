@@ -1,3 +1,9 @@
+spp (1.14-1) UNRELEASED; urgency=medium
+
+  * New upstream version
+
+ -- Diane Trout <diane@ghic.org>  Wed, 12 Oct 2016 11:16:32 -0700
+
 spp (1.11-1) unstable; urgency=medium
 
   * Initial release. (Closes: #XXXXXX)
