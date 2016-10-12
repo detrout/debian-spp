@@ -3,10 +3,12 @@
 #include <iostream>
 #include <string>
 #include <set>
+#include <cmath>
+#include <cstdlib>
 
 extern "C" {
-#include "R.h"
-#include "Rmath.h"
+//#include "R.h"
+//#include "Rmath.h"
 #include "Rinternals.h"
 #include "Rdefines.h"
 }
@@ -171,7 +173,7 @@ extern "C" {
       
 	// calculate the means
 	double mp=((double)(pn1+pn2))/rs;
-	double mn=((double)(pn1+pn2))/rs;
+	double mn=((double)(nn1+nn2))/rs;
 #ifdef DEBUG  
 	Rprintf("mp=%f mn=%f\n",mp,mn);
 #endif
