@@ -1,4 +1,4 @@
-spp (1.11-1) UNRELEASED; urgency=medium
+spp (1.11-1) unstable; urgency=medium
 
   * Initial release. (Closes: #XXXXXX)
   * Update standards-version to 3.9.8, no changes needed
