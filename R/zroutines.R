@@ -39,8 +39,12 @@ read.tagalign.tags <- function(filename,fix.chromosome.names=T,fix.quality=T) {
     xo <- order(abs(d$t));
     d$t <- d$t[xo];
     d$n <- d$n[xo];
-    if(fix.quality) {
-      d$n <- 4-cut(d$n,breaks=c(0,250,500,750,1000),labels=F)
+    if(fix.quality) { 
+      if (min(d$n)<0.5){
+        d$n = ceiling(1000/4^d$n);
+      }
+      break.vals <- unique(sort(c(0,unique(d$n))));
+      d$n <- length(break.vals)-1-cut(d$n,breaks=break.vals,labels=F);
     }
     return(d);
   });
@@ -109,26 +113,34 @@ read.bowtie.tags <- function(filename,read.tag.names=F,fix.chromosome.names=F) {
 }
 
 read.bam.tags <- function(filename,read.tag.names=F,fix.chromosome.names=F) {
-  if(read.tag.names) { rtn <- as.integer(1); } else { rtn <- as.integer(0); };
-  tl <- lapply(.Call("read_bam",path.expand(filename),rtn),function(d) {
-    xo <- order(abs(d$t));
-    d$t <- d$t[xo];
-    d$n <- d$n[xo];
-    if(read.tag.names) {
-      d$s <- d$s[xo];
-    }
-    return(d);
-  });
+  #require(Rsamtools)
+  if(!is.element("fastcluster", installed.packages()[, 1])) {
+    stop("Rsamtools Bioconductor package is now required for BAM file support. Please install")
+  }
+  
+  ww <- c("flag","rname","pos","isize","strand","mapq","qwidth"); if(read.tag.names) { ww <- c(ww,"qname") };
+  bam <- Rsamtools::scanBam(filename,param=Rsamtools::ScanBamParam(what=ww,flag=Rsamtools::scanBamFlag(isUnmappedQuery=FALSE)))[[1]];
+  strm <- as.integer(bam$strand=="+")
+  if(any(bitwAnd(bam$flag,0x1))) { # paired-end data
+    # use only positive strand mappings
+    posvi <- which(strm==1);
+    rl <- list(tags=tapply(posvi,bam$rname[posvi],function(ii) as.numeric(bam$pos[ii])),
+               flen=tapply(posvi,bam$rname[posvi],function(ii) as.numeric(abs(bam$isize[ii]))))
+    # alternatively, handle reads with NA isize (unpaired?) just like single-ended reads
+    #pos <- tapply(1:length(bam$pos),bam$rname,function(ii) ifelse(is.na(bam$isize[ii]), bam$pos[ii]*strm[ii]  - (1-strm[ii])*(bam$pos[ii]+bam$qwidth[ii]), strm[ii]*bam$pos[ii] - (1-strm[ii])*(bam$pos[ii]+bam$isize[ii])))
+  } else {
+    rl <- list(tags=tapply(1:length(bam$pos),bam$rname,function(ii) bam$pos[ii]*strm[ii]  - (1-strm[ii])*(bam$pos[ii]+bam$qwidth[ii])))
+  }
+
+  rl <- c(rl,list(quality=tapply(1:length(bam$pos),bam$rname,function(ii) bam$mapq[ii])))
+  if(read.tag.names) {
+    rl <- c(rl,list(names=tapply(1:length(bam$pos),bam$rname,function(ii) bam$qname[ii])))
+  }
   if(fix.chromosome.names) {
     # remove ".fa"
-    names(tl) <- gsub("\\.fa","",names(tl))
+    names(rl) <- gsub("\\.fa","",names(rl))
   }
-  # separate tags and quality
-  if(read.tag.names) {
-    return(list(tags=lapply(tl,function(d) d$t),quality=lapply(tl,function(d) d$n),names=lapply(tl,function(d) d$s)));
-  } else {
-    return(list(tags=lapply(tl,function(d) d$t),quality=lapply(tl,function(d) d$n)));
-  }
+  return(rl)
 }
 
 
@@ -339,7 +351,9 @@ get.binding.characteristics <- function(data,srange=c(50,500),bin=5,cluster=NULL
   th <- (ccl.av$y[pi]-ccl.av$y[length(ccl.av$y)])/3+ccl.av$y[length(ccl.av$y)]
   whs <- max(ccl.av$x[ccl.av$y>=th]);
 
-  
+  if (! is.integer(whs)) { # Anshul: added this to avoid situations where whs ends up being -Inf
+    whs <- ccl.av$x[ min(c(2*pi,length(ccl.av$y))) ]
+  }
 
   # determine acceptance of different quality bins
   
@@ -517,9 +531,12 @@ find.binding.positions <- function(signal.data,f=1,e.value=NULL,fdr=NULL, masked
 # -------- ROUTINES FOR WRITING OUT TAG DENSITY AND ENRICHMENT PROFILES  ------------
 # calculate smoothed tag density, optionally subtracting the background
 get.smoothed.tag.density <- function(signal.tags,control.tags=NULL,bandwidth=150,bg.weight=NULL,tag.shift=146/2,step=round(bandwidth/3),background.density.scaling=T,rngl=NULL,scale.by.dataset.size=F) {
-  chrl <- names(signal.tags); names(chrl) <- chrl;
+  chrl <- names(signal.tags);
+  if(!is.null(rngl)) { chrl <- names(rngl); }
+  names(chrl) <- chrl;
+  
 
-  if(!is.null(control.tags)) {
+  if(!is.null(control.tags) && is.null(bg.weight)) {
     bg.weight <- dataset.density.ratio(signal.tags,control.tags,background.density.scaling=background.density.scaling);
   }
 
@@ -566,7 +583,7 @@ get.smoothed.enrichment.mle <- function(signal.tags, control.tags, tag.shift=146
   if(is.null(bg.weight)) {
     bg.weight <- dataset.density.ratio(signal.tags,control.tags,background.density.scaling=background.density.scaling);
   }
-  cmle <- lapply(chrl,function(chr) { d <- ssd[[chr]]; d$y <- log2(d$y+pseudocount) - log2(csd[[chr]]$y+pseudocount) - log2(bg.weight); return(d); })
+  cmle <- lapply(chrl,function(chr) { d <- ssd[[chr]]; d$y <- log2(d$y+pseudocount*bg.weight) - log2(csd[[chr]]$y+pseudocount) - log2(bg.weight); return(d); })
 }
 
 # same as get.smoothed.enrichment.mle, but correcting for the backgroudnd (input) for each of the experiment
@@ -595,7 +612,7 @@ get.smoothed.enrichment.mle2 <- function(signal.tags1, control.tags1, signal.tag
   if(is.null(bg.weight2)) {
     bg.weight2 <- dataset.density.ratio(signal.tags2,control.tags2,background.density.scaling=background.density.scaling);
   }
-  cmle <- lapply(chrl,function(chr) { d <- ssd1[[chr]]; d$y <- log2(ssd1[[chr]]$y+pseudocount) - log2(csd1[[chr]]$y+pseudocount) - log2(bg.weight1) - log2(ssd2[[chr]]$y+pseudocount) + log2(csd2[[chr]]$y+pseudocount) + log2(bg.weight2); return(d); })
+  cmle <- lapply(chrl,function(chr) { d <- ssd1[[chr]]; d$y <- log2(ssd1[[chr]]$y+pseudocount*bg.weight1) - log2(csd1[[chr]]$y+pseudocount) - log2(bg.weight1) - log2(ssd2[[chr]]$y+pseudocount*bg.weight2) + log2(csd2[[chr]]$y+pseudocount) + log2(bg.weight2); return(d); })
 }
 
 
@@ -2162,7 +2179,7 @@ old.dataset.density.ratio <- function(d1,d2,min.tag.count.z=4.3,wsize=1e3,mcs=0,
 # output - if return.x=F vector of cumulative density values corresponding to integer positions described by range(vin)
 # output - if return.x=T a data structure with $x and $y corresponding to the cumulative density
 # optional match.wt.f is a function that will return weights for a tag vector
-densum <- function(vin,bw=5,dw=3,match.wt.f=NULL,return.x=T,from=min(vin),to=max(vin),step=1)    {
+densum <- function(vin,bw=5,dw=3,match.wt.f=NULL,return.x=T,from=min(vin),to=max(vin),step=1,new.code=T)    {
   # construct vector of unique tags and their counts
   tc <- table(vin[vin>=from & vin<=to]);
   pos <- as.numeric(names(tc)); storage.mode(pos) <- "double";
@@ -2180,12 +2197,18 @@ densum <- function(vin,bw=5,dw=3,match.wt.f=NULL,return.x=T,from=min(vin),to=max
   storage.mode(n) <- storage.mode(rng) <- storage.mode(bw) <- storage.mode(dw) <- storage.mode(step) <- "integer";
   
   spos <- rng[1]; storage.mode(spos) <- "double";
-
+  
   dlength <- floor((rng[2] - rng[1])/step) + 1; # length of output array
   if(dlength<1) { stop("zero data range") }
-  dout <- numeric(dlength); storage.mode(dout) <- "double";
-  storage.mode(dlength) <- "integer";
-  .C("cdensum",n,pos,tc,spos,bw,dw,dlength,step,dout,DUP=F);
+  if(new.code) {
+    storage.mode(step) <- storage.mode(dlength) <- storage.mode(bw) <- storage.mode(dw) <-"integer";
+    dout <- .Call("ccdensum",pos,tc,spos,bw,dw,dlength,step);
+  } else {
+    dout <- numeric(dlength); storage.mode(dout) <- "double";
+    storage.mode(dlength) <- "integer";
+    .C("cdensum",n,pos,tc,spos,bw,dw,dlength,step,dout,DUP=F);
+  }
+  
   
   if(return.x) {
     return(list(x=c(rng[1],rng[1]+step*(dlength-1)),y=dout,step=step))
@@ -2534,7 +2557,7 @@ add.broad.peak.regions <- function(chip.tags,input.tags,bp,window.size=500,z.thr
 # writing out binding results in a narrowpeak format, incorporating broad region boundaries if they are present
 # if broad region info is not present, margin is used to determine region width. The default margin is equal
 # to the window half size used to call the binding peaks
-write.narrowpeak.binding <- function(bd,fname,margin=bd$whs) {
+write.narrowpeak.binding <- function(bd,fname,margin=bd$whs,npeaks=NA) {
   if(is.null(margin)) { margin <- 50; }
   chrl <- names(bd$npl); names(chrl) <- chrl;
   md <- do.call(rbind,lapply(chrl,function(chr) {
@@ -2544,9 +2567,13 @@ write.narrowpeak.binding <- function(bd,fname,margin=bd$whs) {
     re <- df$re; if(is.null(re)) { re <- rep(NA,length(x)) }
     ivi <- which(is.na(rs)); if(any(ivi)) {rs[ivi] <- x[ivi]-margin;}
     ivi <- which(is.na(re)); if(any(ivi)) {re[ivi] <- x[ivi]+margin;}
-    cbind(chr,rs,re,".","0",".",df$y,-1,format(df$fdr,scientific=T,digits=3),x-rs)
+    cbind(chr,rs,re,".","0",".",df$y,-1,-log10(df$fdr),x-rs) # Anshul: converted fdr to -log10
   }))
   md <- md[order(as.numeric(md[,7]),decreasing=T),]
+  if (!is.na(npeaks)) { # Anshul: added this option to print a limited number of peaks
+    npeaks <- min(nrow(md),npeaks)
+                md <- md[1:npeaks,]
+  }
   write.table(md,file=fname,col.names=F,row.names=F,quote=F,sep="\t",append=F);
 }
 

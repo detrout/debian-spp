@@ -10,7 +10,6 @@
 #include <string>
 #include <functional>
 #include <utility>
-#include <ext/hash_map>
 #include <boost/tokenizer.hpp>
 
 #ifdef HAVE_LIBBZ2
@@ -18,8 +17,8 @@
 #endif 
 
 extern "C" {
-#include "R.h"
-#include "Rmath.h"
+//#include "R.h"
+//#include "Rmath.h"
 #include "Rinternals.h"
 #include "Rdefines.h"
   // for getline
@@ -1511,7 +1510,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
   if (!f)  { cout<<"can't open input file \""<<fname<<"\"\n"; 
   } else {
 #ifdef HAVE_LIBBZ2
-    BZFILE* b;  
+    BZFILE* b=0;  
     int bzerror;
     
     int bz2file=0;
@@ -1725,7 +1724,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
   if (!f)  { cout<<"can't open input file \""<<fname<<"\"\n"; 
   } else {
 #ifdef HAVE_LIBBZ2
-    BZFILE* b;  
+    BZFILE* b=0;  
     int bzerror;
     
     int bz2file=0;
@@ -2284,7 +2283,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
   else {
 
 #ifdef HAVE_LIBBZ2
-    BZFILE* b;  
+    BZFILE* b=0;  
     int bzerror;
     
     int bz2file=0;
@@ -2455,7 +2454,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
   else {
 
 #ifdef HAVE_LIBBZ2
-    BZFILE* b;  
+    BZFILE* b=0;  
     int bzerror;
     
     int bz2file=0;
@@ -2638,8 +2637,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
 
 
 /* PASTE REMAINDER AT BOTTOM OF FILE */
-ssize_t
-getline_local(char **linep, size_t *np, FILE *stream)
+ssize_t getline_local(char **linep, size_t *np, FILE *stream)
 {
   char *p = NULL;
   size_t i = 0;
@@ -2661,7 +2659,7 @@ getline_local(char **linep, size_t *np, FILE *stream)
 
   p = *linep;
   for (int ch = 0; (ch = getc_unlocked(stream)) != EOF;) {
-    if (i > *np) {
+    if (i >= *np) {
       /* Grow *linep. */
       size_t m = *np * 2;
       char *s = (char *)realloc(*linep, m);
@@ -2675,6 +2673,9 @@ getline_local(char **linep, size_t *np, FILE *stream)
 
       *linep = s;
       *np = m;
+
+      p = *linep;
+
     }
 
     p[i] = ch;
@@ -2684,7 +2685,7 @@ getline_local(char **linep, size_t *np, FILE *stream)
   funlockfile(stream);
 
   /* Null-terminate the string. */
-  if (i > *np) {
+  if (i >= *np) {
     /* Grow *linep. */
       size_t m = *np * 2;
       char *s = (char *)realloc(*linep, m);
@@ -2695,6 +2696,8 @@ getline_local(char **linep, size_t *np, FILE *stream)
 
       *linep = s;
       *np = m;
+      p = *linep;
+
   }
 
   p[i + 1] = '\0';
