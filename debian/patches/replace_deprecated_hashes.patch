@@ -4,72 +4,31 @@ Description: Several deprecated hash headers were removed in g++ 6.
  I also removed a few #include <strstream> but no changes were
  needed as the code had already been updated for sstream
 
-Index: spp-1.11/src/bamread.cpp
-===================================================================
---- spp-1.11.orig/src/bamread.cpp
-+++ spp-1.11/src/bamread.cpp
-@@ -5,12 +5,11 @@
- #include <iostream>
- #include <fstream>
- #include <sstream>
--#include <strstream>
- #include <algorithm>
- #include <string>
- #include <functional>
- #include <utility>
--#include <ext/hash_map>
-+#include <unordered_map>
- #include <boost/tokenizer.hpp>
- 
- #include "BamAlignment.h"
-@@ -64,7 +63,7 @@ extern "C" {
-   vector< vector<string> > tagnames;
- 
-   // chromosome map
--  hash_map<string, int, hash<string>,equal_to<string> > cind_map;
-+  unordered_map<string, int, std::hash<string>, std::equal_to<string> > cind_map;
-   vector<string> cnames;
-   
- 
-@@ -101,7 +100,7 @@ extern "C" {
-       
-       
-       // determine the chromosome index
--      hash_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
-+      unordered_map<string, int, std::hash<string>, std::equal_to<string> >::const_iterator li=cind_map.find(chr);
-       int cind=-1;
-       if(li==cind_map.end()) {
- 	// register new chromosome
-Index: spp-1.11/src/pc.h
-===================================================================
---- spp-1.11.orig/src/pc.h
-+++ spp-1.11/src/pc.h
-@@ -2,10 +2,10 @@
+--- a/src/pc.h
++++ b/src/pc.h
+@@ -1,17 +1,6 @@
+ #ifndef PC_H
  #define PC_H 1
  #include <functional>
- //#include <hash_map.h>
--#include <ext/hash_set>
 -#include <ext/hash_map>
+-
+-namespace __gnu_cxx
+-{
+-        template<> struct hash< std::string >
+-        {
+-                size_t operator()( const std::string& x ) const
+-                {
+-                        return hash< const char* >()( x.c_str() );
+-                }
+-        };
+-}
 -
 +#include <unordered_set>
 +#include <unordered_map>
- 
-+#if 0
- namespace __gnu_cxx
- {
-         template<> struct hash< std::string >
-@@ -16,5 +16,6 @@ namespace __gnu_cxx
-                 }
-         };
- }
-+#endif
- 
  #endif
-Index: spp-1.11/src/bed2vector.cpp
-===================================================================
---- spp-1.11.orig/src/bed2vector.cpp
-+++ spp-1.11/src/bed2vector.cpp
-@@ -5,12 +5,11 @@
+--- a/src/bed2vector.cpp
++++ b/src/bed2vector.cpp
+@@ -5,7 +5,6 @@
  #include <iostream>
  #include <fstream>
  #include <sstream>
@@ -77,13 +36,7 @@ Index: spp-1.11/src/bed2vector.cpp
  #include <algorithm>
  #include <string>
  #include <functional>
- #include <utility>
--#include <ext/hash_map>
-+#include <unordered_map>
- #include <boost/tokenizer.hpp>
- 
- #ifdef HAVE_LIBBZ2
-@@ -32,7 +31,6 @@ ssize_t getline_local(char **lineptr, si
+@@ -31,7 +30,6 @@
  }
  
  using namespace std;
@@ -91,7 +44,7 @@ Index: spp-1.11/src/bed2vector.cpp
  
  
  class lessAbsoluteValue {
-@@ -116,7 +114,7 @@ SEXP read_bed_ends(SEXP filename) {
+@@ -115,7 +113,7 @@
    vector< vector<int> > pos;
  
    // chromosome map
@@ -100,7 +53,7 @@ Index: spp-1.11/src/bed2vector.cpp
    vector<string> cnames;
  
    typedef boost::tokenizer<boost::char_separator<char> >  tokType;
-@@ -161,7 +159,7 @@ SEXP read_bed_ends(SEXP filename) {
+@@ -160,7 +158,7 @@
        }
  
        // determine the chromosome index
@@ -109,7 +62,7 @@ Index: spp-1.11/src/bed2vector.cpp
        int cind=-1;
        if(li==cind_map.end()) {
  	// register new chromosome
-@@ -252,7 +250,7 @@ SEXP read_meland_old(SEXP filename) {
+@@ -251,7 +249,7 @@
    vector< vector<int> > poslen; // length
  
    // chromosome map
@@ -118,7 +71,7 @@ Index: spp-1.11/src/bed2vector.cpp
    vector<string> cnames;
    
  
-@@ -294,7 +292,7 @@ SEXP read_meland_old(SEXP filename) {
+@@ -293,7 +291,7 @@
        int fpos=atoi(str_pos.c_str());
        
        // determine the chromosome index
@@ -127,7 +80,7 @@ Index: spp-1.11/src/bed2vector.cpp
        int cind=-1;
        if(li==cind_map.end()) {
  	// register new chromosome
-@@ -430,7 +428,7 @@ SEXP read_meland_old(SEXP filename) {
+@@ -429,7 +427,7 @@
    vector< vector<string> > tagnames;
  
    // chromosome map
@@ -136,7 +89,7 @@ Index: spp-1.11/src/bed2vector.cpp
    vector<string> cnames;
    
  
-@@ -474,7 +472,7 @@ SEXP read_meland_old(SEXP filename) {
+@@ -473,7 +471,7 @@
        int fpos=atoi(str_pos.c_str());
        
        // determine the chromosome index
@@ -145,7 +98,7 @@ Index: spp-1.11/src/bed2vector.cpp
        int cind=-1;
        if(li==cind_map.end()) {
  	// register new chromosome
-@@ -622,7 +620,7 @@ SEXP read_eland_mismatches(SEXP filename
+@@ -621,7 +619,7 @@
    vector< vector<int> > mm2; // position of the second mismatch
  
    // chromosome map
@@ -154,7 +107,7 @@ Index: spp-1.11/src/bed2vector.cpp
    vector<string> cnames;
    
  
-@@ -690,7 +688,7 @@ SEXP read_eland_mismatches(SEXP filename
+@@ -689,7 +687,7 @@
        }
        
        // determine the chromosome index
@@ -163,7 +116,7 @@ Index: spp-1.11/src/bed2vector.cpp
        int cind=-1;
        if(li==cind_map.end()) {
  	// register new chromosome
-@@ -815,7 +813,7 @@ SEXP read_eland_mismatches(SEXP filename
+@@ -814,7 +812,7 @@
    vector< vector<string> > tagnames;
  
    // chromosome map
@@ -172,7 +125,7 @@ Index: spp-1.11/src/bed2vector.cpp
    vector<string> cnames;
    
  
-@@ -866,7 +864,7 @@ SEXP read_eland_mismatches(SEXP filename
+@@ -865,7 +863,7 @@
        }
        
        // determine the chromosome index
@@ -181,7 +134,7 @@ Index: spp-1.11/src/bed2vector.cpp
        int cind=-1;
        if(li==cind_map.end()) {
  	// register new chromosome
-@@ -1002,7 +1000,7 @@ SEXP read_eland_mismatches(SEXP filename
+@@ -1001,7 +999,7 @@
    vector< vector<string> > tagnames;
  
    // chromosome map
@@ -190,7 +143,7 @@ Index: spp-1.11/src/bed2vector.cpp
    vector<string> cnames;
    
  
-@@ -1076,7 +1074,7 @@ SEXP read_eland_mismatches(SEXP filename
+@@ -1075,7 +1073,7 @@
        }
        
        // determine the chromosome index
@@ -199,7 +152,7 @@ Index: spp-1.11/src/bed2vector.cpp
        int cind=-1;
        if(li==cind_map.end()) {
  	// register new chromosome
-@@ -1211,7 +1209,7 @@ SEXP read_eland_multi(SEXP filename,SEXP
+@@ -1210,7 +1208,7 @@
    vector< vector<string> > tagnames;
  
    // chromosome map
@@ -208,7 +161,7 @@ Index: spp-1.11/src/bed2vector.cpp
    vector<string> cnames;
    
  
-@@ -1364,7 +1362,7 @@ SEXP read_eland_multi(SEXP filename,SEXP
+@@ -1363,7 +1361,7 @@
        }
        
        // determine the chromosome index
@@ -217,7 +170,7 @@ Index: spp-1.11/src/bed2vector.cpp
        int cind=-1;
        if(li==cind_map.end()) {
  	// register new chromosome
-@@ -1498,7 +1496,7 @@ SEXP read_eland_multi(SEXP filename,SEXP
+@@ -1497,7 +1495,7 @@
    vector< vector<string> > tagnames;
  
    // chromosome map
@@ -226,7 +179,7 @@ Index: spp-1.11/src/bed2vector.cpp
    vector<string> cnames;
    
  
-@@ -1573,7 +1571,7 @@ SEXP read_eland_multi(SEXP filename,SEXP
+@@ -1572,7 +1570,7 @@
  
        
        // determine the chromosome index
@@ -235,7 +188,7 @@ Index: spp-1.11/src/bed2vector.cpp
        int cind=-1;
        if(li==cind_map.end()) {
  	// register new chromosome
-@@ -1712,7 +1710,7 @@ SEXP read_eland_multi(SEXP filename,SEXP
+@@ -1711,7 +1709,7 @@
    vector< vector<string> > tagnames;
  
    // chromosome map
@@ -244,7 +197,7 @@ Index: spp-1.11/src/bed2vector.cpp
    vector<string> cnames;
    
  
-@@ -1790,7 +1788,7 @@ SEXP read_eland_multi(SEXP filename,SEXP
+@@ -1789,7 +1787,7 @@
        int nm=atoi(str_ndel.c_str())+atoi(str_nins.c_str())+atoi(str_nsub.c_str());
        
        // determine the chromosome index
@@ -253,7 +206,7 @@ Index: spp-1.11/src/bed2vector.cpp
        int cind=-1;
        if(li==cind_map.end()) {
  	// register new chromosome
-@@ -1939,7 +1937,7 @@ SEXP read_eland_multi(SEXP filename,SEXP
+@@ -1938,7 +1936,7 @@
    vector< vector<string> > tagnames;
  
    // chromosome map
@@ -262,7 +215,7 @@ Index: spp-1.11/src/bed2vector.cpp
    vector<string> cnames;
    
  
-@@ -1982,7 +1980,7 @@ SEXP read_eland_multi(SEXP filename,SEXP
+@@ -1981,7 +1979,7 @@
        }
  
        // determine the chromosome index
@@ -271,7 +224,7 @@ Index: spp-1.11/src/bed2vector.cpp
        int cind=-1;
        if(li==cind_map.end()) {
  	// register new chromosome
-@@ -2117,7 +2115,7 @@ SEXP read_eland_multi(SEXP filename,SEXP
+@@ -2116,7 +2114,7 @@
    vector< vector<int> > posnm; // number of mismatches
  
    // chromosome map
@@ -280,7 +233,7 @@ Index: spp-1.11/src/bed2vector.cpp
    vector<string> cnames;
    
  
-@@ -2159,7 +2157,7 @@ SEXP read_eland_multi(SEXP filename,SEXP
+@@ -2158,7 +2156,7 @@
        int nm=atoi(str_qual.c_str());
        
        // determine the chromosome index
@@ -289,7 +242,7 @@ Index: spp-1.11/src/bed2vector.cpp
        int cind=-1;
        if(li==cind_map.end()) {
  	// register new chromosome
-@@ -2268,7 +2266,7 @@ SEXP read_eland_multi(SEXP filename,SEXP
+@@ -2267,7 +2265,7 @@
    vector< vector<int> > posnm; // number of mismatches
  
    // chromosome map
@@ -298,7 +251,7 @@ Index: spp-1.11/src/bed2vector.cpp
    vector<string> cnames;
    
  
-@@ -2327,7 +2325,7 @@ SEXP read_eland_multi(SEXP filename,SEXP
+@@ -2326,7 +2324,7 @@
        
        
        // determine the chromosome index
@@ -307,7 +260,7 @@ Index: spp-1.11/src/bed2vector.cpp
        int cind=-1;
        if(li==cind_map.end()) {
  	// register new chromosome
-@@ -2439,7 +2437,7 @@ SEXP read_eland_multi(SEXP filename,SEXP
+@@ -2438,7 +2436,7 @@
    vector< vector<int> > poslen; // length of the match
  
    // chromosome map
@@ -316,7 +269,7 @@ Index: spp-1.11/src/bed2vector.cpp
    vector<string> cnames;
    
  
-@@ -2528,7 +2526,7 @@ SEXP read_eland_multi(SEXP filename,SEXP
+@@ -2527,7 +2525,7 @@
        
        
        // determine the chromosome index
@@ -325,10 +278,8 @@ Index: spp-1.11/src/bed2vector.cpp
        int cind=-1;
        if(li==cind_map.end()) {
  	// register new chromosome
-Index: spp-1.11/src/maqread.cpp
-===================================================================
---- spp-1.11.orig/src/maqread.cpp
-+++ spp-1.11/src/maqread.cpp
+--- a/src/maqread.cpp
++++ b/src/maqread.cpp
 @@ -4,7 +4,6 @@
  #include <iostream>
  #include <fstream>
@@ -337,7 +288,7 @@ Index: spp-1.11/src/maqread.cpp
  #include <algorithm>
  #include <string>
  #include <functional>
-@@ -55,7 +54,7 @@ extern "C" {
+@@ -55,7 +54,7 @@
    vector< vector<string> > tagnames;
  
    // chromosome map
@@ -346,7 +297,7 @@ Index: spp-1.11/src/maqread.cpp
    vector<string> cnames;
    
  
-@@ -89,7 +88,7 @@ extern "C" {
+@@ -89,7 +88,7 @@
      
  
        // determine the chromosome index
@@ -355,3 +306,12 @@ Index: spp-1.11/src/maqread.cpp
        int cind=-1;
        if(li==cind_map.end()) {
  	// register new chromosome
+--- a/src/Makevars.in
++++ b/src/Makevars.in
+@@ -1,4 +1,3 @@
+ PKG_LIBS=@LIBS@ -lz
+-PKG_CFLAGS=-I./ -D_FASTMAP -DMAQ_LONGREADS @HAVE_LIBBZ2@  
+-PKG_CXXFLAGS=-I./ -D_FASTMAP -DMAQ_LONGREADS	@HAVE_LIBBZ2@  @BOOST_CPPFLAGS@
+-
++PKG_CFLAGS=-I./ -D_FASTMAP -DMAQ_LONGREADS -std=c++11 @HAVE_LIBBZ2@
++PKG_CXXFLAGS=-I./ -D_FASTMAP -DMAQ_LONGREADS -std=c++11 @HAVE_LIBBZ2@  @BOOST_CPPFLAGS@
