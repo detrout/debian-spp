@@ -1,7 +1,7 @@
-Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: spp
 Upstream-Contact: peterK<peter.kharchenko@post.harvard.edu>
-Source: http://compbio.med.harvard.edu/Supplements/ChIP-seq/
+Source: https://github.com/hms-dbmi/spp
 
 Files: *
 Copyright: 2008 Peter Kharchenko <peter.kharchenko@post.harvard.edu>
