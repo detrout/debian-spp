@@ -1,4 +1,4 @@
-spp (1.14-1) UNRELEASED; urgency=medium
+spp (1.14-1) unstable; urgency=medium
 
   * New upstream version
   * remove r-3.3 patch resolved upstream
