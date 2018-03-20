@@ -6,6 +6,7 @@ Build-Depends: debhelper (>= 9),
                cdbs,
                r-base-dev,
                r-cran-catools,
+               r-cran-rcpp,
                r-bioc-rsamtools,
                libboost-dev,
 Standards-Version: 4.1.3
@@ -17,7 +18,9 @@ Package: r-other-spp
 Architecture: any
 Depends: ${R:Depends},
          ${misc:Depends},
+	 ${shlibs:Depends},
          r-cran-catools,
+	 r-cran-rcpp,
 Description: ChIP-Seq processing pipeline
  ChIP-Seq processing pipeline.
    * Assess overall DNA-binding signals in the data and select
