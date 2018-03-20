@@ -6,6 +6,7 @@ spp (1.15.2-1) unstable; urgency=medium
   * Add build and package dependency on rcpp & its shared libraries.
   * Update debhelper compat version to 10.
   * Improve package description.
+  * Add r-cran-rsamtools as binary dependency.
 
  -- Diane Trout <diane@ghic.org>  Tue, 20 Mar 2018 11:45:14 -0700
 

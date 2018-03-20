@@ -19,6 +19,7 @@ Architecture: any
 Depends: ${R:Depends},
          ${misc:Depends},
 	 ${shlibs:Depends},
+         r-bioc-rsamtools,
          r-cran-catools,
 	 r-cran-rcpp,
 Description: ChIP-Seq processing pipeline
