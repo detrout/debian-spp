@@ -1,0 +1,2 @@
+Test-Command: Rscript -e "library(Rcpp); library(spp)"
+Depends: @
