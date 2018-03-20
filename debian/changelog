@@ -4,6 +4,7 @@ spp (1.14-1) UNRELEASED; urgency=medium
   * remove r-3.3 patch resolved upstream
   * update replace_deprecated_headers
   * Add build dependency on r-bioc-rsamtools
+  * Add patch replace_deprecated_hashes.patch to make compatible with gcc-6
 
  -- Diane Trout <diane@ghic.org>  Wed, 12 Oct 2016 11:16:32 -0700
 

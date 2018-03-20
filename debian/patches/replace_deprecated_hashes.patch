@@ -288,7 +288,15 @@ Description: Several deprecated hash headers were removed in g++ 6.
  #include <algorithm>
  #include <string>
  #include <functional>
-@@ -55,7 +54,7 @@
+@@ -20,7 +19,6 @@
+ }
+ 
+ using namespace std;
+-using namespace __gnu_cxx; 
+ 
+ 
+ class lessAbsoluteValue {
+@@ -55,7 +53,7 @@
    vector< vector<string> > tagnames;
  
    // chromosome map
@@ -297,7 +305,7 @@ Description: Several deprecated hash headers were removed in g++ 6.
    vector<string> cnames;
    
  
-@@ -89,7 +88,7 @@
+@@ -89,7 +87,7 @@
      
  
        // determine the chromosome index
@@ -315,3 +323,23 @@ Description: Several deprecated hash headers were removed in g++ 6.
 -
 +PKG_CFLAGS=-I./ -D_FASTMAP -DMAQ_LONGREADS -std=c++11 @HAVE_LIBBZ2@
 +PKG_CXXFLAGS=-I./ -D_FASTMAP -DMAQ_LONGREADS -std=c++11 @HAVE_LIBBZ2@  @BOOST_CPPFLAGS@
+--- a/src/peaks.cpp
++++ b/src/peaks.cpp
+@@ -14,7 +14,6 @@
+ }
+ 
+ using namespace std;
+-using namespace __gnu_cxx; 
+ 
+ /**
+  * Calculate all local peaks
+--- a/src/wdl.cpp
++++ b/src/wdl.cpp
+@@ -14,7 +14,6 @@
+ }
+ 
+ using namespace std;
+-using namespace __gnu_cxx; 
+ 
+ //#define DEBUG 1
+ 
