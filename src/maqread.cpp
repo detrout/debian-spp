@@ -4,7 +4,6 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <strstream>
 #include <algorithm>
 #include <string>
 #include <functional>
@@ -20,8 +19,6 @@ extern "C" {
 }
 
 using namespace std;
-using namespace __gnu_cxx; 
-
 
 class lessAbsoluteValue {
 public:
@@ -55,7 +52,7 @@ extern "C" {
   vector< vector<string> > tagnames;
 
   // chromosome map
-  hash_map<string, int, hash<string>,equal_to<string> > cind_map;
+  unordered_map<string, int, hash<string>,equal_to<string> > cind_map;
   vector<string> cnames;
   
 
@@ -66,7 +63,7 @@ extern "C" {
   m1 = &mm1;
 
   if (!f)  { 
-    cout<<"can't open input file \""<<fname<<"\"\n"; 
+    Rprintf("can't open input file \"",fname,"\"\n"); 
   }  else {
     Rprintf("opened %s\n",fname);
 
@@ -89,7 +86,7 @@ extern "C" {
     
 
       // determine the chromosome index
-      hash_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
+      unordered_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
       int cind=-1;
       if(li==cind_map.end()) {
 	// register new chromosome
