@@ -22,7 +22,7 @@ Depends: ${R:Depends},
          r-cran-catools,
 	 r-cran-rcpp,
 Description: ChIP-Seq processing pipeline
- ChIP-Seq processing pipeline.
+ Package for processing ChIP-Seq experiments.
    * Assess overall DNA-binding signals in the data and select
      appropriate quality of tag alignment.
    * Discard or restrict positions with abnormally high number
