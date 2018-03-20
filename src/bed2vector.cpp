@@ -5,7 +5,6 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <strstream>
 #include <algorithm>
 #include <string>
 #include <functional>
@@ -25,13 +24,13 @@ extern "C" {
 #include <stdio.h>   /* flockfile, getc_unlocked, funlockfile */
 #include <stdlib.h>  /* malloc, realloc */
 
+
 #include <errno.h>   /* errno */
 #include <unistd.h>  /* ssize_t */
 ssize_t getline_local(char **lineptr, size_t *n, FILE *stream);
 }
 
 using namespace std;
-using namespace __gnu_cxx; 
 
 
 class lessAbsoluteValue {
@@ -70,7 +69,9 @@ int get_a_line(FILE *f,BZFILE *b,int bz2file,string& line) {
       return(1);
     } else {
       if(bzerror!=BZ_STREAM_END) {
-	cerr<<"encountered BZERROR="<<bzerror<<endl;
+	REprintf("encountered BZERROR=",bzerror);
+	//Rcpp::Rcerr<<"encountered BZERROR="<<bzerror<<std::endl;
+
       }
       return(0);
     }
@@ -115,7 +116,7 @@ SEXP read_bed_ends(SEXP filename) {
   vector< vector<int> > pos;
 
   // chromosome map
-  hash_map<string, int, hash<string>,equal_to<string> > cind_map;
+  unordered_map<string, int, hash<string>,equal_to<string> > cind_map;
   vector<string> cnames;
 
   typedef boost::tokenizer<boost::char_separator<char> >  tokType;
@@ -160,7 +161,7 @@ SEXP read_bed_ends(SEXP filename) {
       }
 
       // determine the chromosome index
-      hash_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
+      unordered_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
       int cind=-1;
       if(li==cind_map.end()) {
 	// register new chromosome
@@ -251,7 +252,7 @@ SEXP read_meland_old(SEXP filename) {
   vector< vector<int> > poslen; // length
 
   // chromosome map
-  hash_map<string, int, hash<string>,equal_to<string> > cind_map;
+  unordered_map<string, int, hash<string>,equal_to<string> > cind_map;
   vector<string> cnames;
   
 
@@ -293,7 +294,7 @@ SEXP read_meland_old(SEXP filename) {
       int fpos=atoi(str_pos.c_str());
       
       // determine the chromosome index
-      hash_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
+      unordered_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
       int cind=-1;
       if(li==cind_map.end()) {
 	// register new chromosome
@@ -429,7 +430,7 @@ SEXP read_meland_old(SEXP filename) {
   vector< vector<string> > tagnames;
 
   // chromosome map
-  hash_map<string, int, hash<string>,equal_to<string> > cind_map;
+  unordered_map<string, int, hash<string>,equal_to<string> > cind_map;
   vector<string> cnames;
   
 
@@ -438,7 +439,7 @@ SEXP read_meland_old(SEXP filename) {
 
   
   FILE *f=fopen(fname,"rb");
-  if (!f)  { cout<<"can't open input file \""<<fname<<"\"\n"; }
+  if (!f)  { Rprintf("can't open input file \"",fname,"\"\n"); }
   
   Rprintf("opened %s\n",fname);
 
@@ -473,7 +474,7 @@ SEXP read_meland_old(SEXP filename) {
       int fpos=atoi(str_pos.c_str());
       
       // determine the chromosome index
-      hash_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
+      unordered_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
       int cind=-1;
       if(li==cind_map.end()) {
 	// register new chromosome
@@ -621,7 +622,7 @@ SEXP read_eland_mismatches(SEXP filename) {
   vector< vector<int> > mm2; // position of the second mismatch
 
   // chromosome map
-  hash_map<string, int, hash<string>,equal_to<string> > cind_map;
+  unordered_map<string, int, hash<string>,equal_to<string> > cind_map;
   vector<string> cnames;
   
 
@@ -630,7 +631,7 @@ SEXP read_eland_mismatches(SEXP filename) {
 
   
   FILE *f=fopen(fname,"rb");
-  if (!f)  { cout<<"can't open input file \""<<fname<<"\"\n"; }
+  if (!f)  { Rprintf("can't open input file \"",fname,"\"\n"); }
 
   Rprintf("opened %s\n",fname);
 
@@ -689,7 +690,7 @@ SEXP read_eland_mismatches(SEXP filename) {
       }
       
       // determine the chromosome index
-      hash_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
+      unordered_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
       int cind=-1;
       if(li==cind_map.end()) {
 	// register new chromosome
@@ -814,7 +815,7 @@ SEXP read_eland_mismatches(SEXP filename) {
   vector< vector<string> > tagnames;
 
   // chromosome map
-  hash_map<string, int, hash<string>,equal_to<string> > cind_map;
+  unordered_map<string, int, hash<string>,equal_to<string> > cind_map;
   vector<string> cnames;
   
 
@@ -823,7 +824,7 @@ SEXP read_eland_mismatches(SEXP filename) {
 
   
   FILE *f=fopen(fname,"rb");
-  if (!f)  { cout<<"can't open input file \""<<fname<<"\"\n"; }
+  if (!f)  { Rprintf("can't open input file \"",fname,"\"\n"); }
   else {
   Rprintf("opened %s\n",fname);
 
@@ -865,7 +866,7 @@ SEXP read_eland_mismatches(SEXP filename) {
       }
       
       // determine the chromosome index
-      hash_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
+      unordered_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
       int cind=-1;
       if(li==cind_map.end()) {
 	// register new chromosome
@@ -1001,7 +1002,7 @@ SEXP read_eland_mismatches(SEXP filename) {
   vector< vector<string> > tagnames;
 
   // chromosome map
-  hash_map<string, int, hash<string>,equal_to<string> > cind_map;
+  unordered_map<string, int, hash<string>,equal_to<string> > cind_map;
   vector<string> cnames;
   
 
@@ -1010,7 +1011,7 @@ SEXP read_eland_mismatches(SEXP filename) {
 
   
   FILE *f=fopen(fname,"rb");
-  if (!f)  { cout<<"can't open input file \""<<fname<<"\"\n"; }
+  if (!f)  { Rprintf("can't open input file \"",fname,"\"\n"); }
   else {
   Rprintf("opened %s\n",fname);
 
@@ -1075,7 +1076,7 @@ SEXP read_eland_mismatches(SEXP filename) {
       }
       
       // determine the chromosome index
-      hash_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
+      unordered_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
       int cind=-1;
       if(li==cind_map.end()) {
 	// register new chromosome
@@ -1210,7 +1211,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
   vector< vector<string> > tagnames;
 
   // chromosome map
-  hash_map<string, int, hash<string>,equal_to<string> > cind_map;
+  unordered_map<string, int, hash<string>,equal_to<string> > cind_map;
   vector<string> cnames;
   
 
@@ -1221,7 +1222,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
   
   
   FILE *f=fopen(fname,"rb");
-  if (!f)  { cout<<"can't open input file \""<<fname<<"\"\n"; }
+  if (!f)  { Rprintf("can't open input file \"",fname,"\"\n"); }
   else {
   Rprintf("opened %s\n",fname);
 
@@ -1363,7 +1364,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
       }
       
       // determine the chromosome index
-      hash_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
+      unordered_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
       int cind=-1;
       if(li==cind_map.end()) {
 	// register new chromosome
@@ -1497,7 +1498,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
   vector< vector<string> > tagnames;
 
   // chromosome map
-  hash_map<string, int, hash<string>,equal_to<string> > cind_map;
+  unordered_map<string, int, hash<string>,equal_to<string> > cind_map;
   vector<string> cnames;
   
 
@@ -1507,7 +1508,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
 
   
   FILE *f=fopen(fname,"rb");
-  if (!f)  { cout<<"can't open input file \""<<fname<<"\"\n"; 
+  if (!f)  { Rprintf("can't open input file \"",fname,"\"\n"); 
   } else {
 #ifdef HAVE_LIBBZ2
     BZFILE* b=0;  
@@ -1517,7 +1518,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
     if(strstr(fname,".bz2")) {
       bz2file=1;
       b=BZ2_bzReadOpen (&bzerror, f, 0, 0, NULL, 0);
-      if (bzerror != BZ_OK)  { cout<<"bzerror="<<bzerror<<endl; }
+      if (bzerror != BZ_OK)  { Rprintf("bzerror=",bzerror); }
     }
 #endif
 
@@ -1572,7 +1573,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
 
       
       // determine the chromosome index
-      hash_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
+      unordered_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
       int cind=-1;
       if(li==cind_map.end()) {
 	// register new chromosome
@@ -1711,7 +1712,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
   vector< vector<string> > tagnames;
 
   // chromosome map
-  hash_map<string, int, hash<string>,equal_to<string> > cind_map;
+  unordered_map<string, int, hash<string>,equal_to<string> > cind_map;
   vector<string> cnames;
   
 
@@ -1721,7 +1722,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
 
   
   FILE *f=fopen(fname,"rb");
-  if (!f)  { cout<<"can't open input file \""<<fname<<"\"\n"; 
+  if (!f)  { Rprintf("can't open input file \"",fname,"\"\n"); 
   } else {
 #ifdef HAVE_LIBBZ2
     BZFILE* b=0;  
@@ -1731,7 +1732,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
     if(strstr(fname,".bz2")) {
       bz2file=1;
       b=BZ2_bzReadOpen (&bzerror, f, 0, 0, NULL, 0);
-      if (bzerror != BZ_OK)  { cout<<"bzerror="<<bzerror<<endl; }
+      if (bzerror != BZ_OK)  { Rprintf("bzerror=",bzerror); }
     }
 #endif
 
@@ -1789,7 +1790,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
       int nm=atoi(str_ndel.c_str())+atoi(str_nins.c_str())+atoi(str_nsub.c_str());
       
       // determine the chromosome index
-      hash_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
+      unordered_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
       int cind=-1;
       if(li==cind_map.end()) {
 	// register new chromosome
@@ -1938,7 +1939,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
   vector< vector<string> > tagnames;
 
   // chromosome map
-  hash_map<string, int, hash<string>,equal_to<string> > cind_map;
+  unordered_map<string, int, hash<string>,equal_to<string> > cind_map;
   vector<string> cnames;
   
 
@@ -1947,7 +1948,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
 
   
   FILE *f=fopen(fname,"rb");
-  if (!f)  { cout<<"can't open input file \""<<fname<<"\"\n"; }
+  if (!f)  { Rprintf("can't open input file \"",fname,"\"\n"); }
   else {
   Rprintf("opened %s\n",fname);
 
@@ -1981,7 +1982,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
       }
 
       // determine the chromosome index
-      hash_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
+      unordered_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
       int cind=-1;
       if(li==cind_map.end()) {
 	// register new chromosome
@@ -2116,7 +2117,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
   vector< vector<int> > posnm; // number of mismatches
 
   // chromosome map
-  hash_map<string, int, hash<string>,equal_to<string> > cind_map;
+  unordered_map<string, int, hash<string>,equal_to<string> > cind_map;
   vector<string> cnames;
   
 
@@ -2125,7 +2126,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
 
   
   FILE *f=fopen(fname,"rb");
-  if (!f)  { cout<<"can't open input file \""<<fname<<"\"\n"; }
+  if (!f)  { Rprintf("can't open input file \"",fname,"\"\n"); }
   else {
   Rprintf("opened %s\n",fname);
 
@@ -2158,7 +2159,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
       int nm=atoi(str_qual.c_str());
       
       // determine the chromosome index
-      hash_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
+      unordered_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
       int cind=-1;
       if(li==cind_map.end()) {
 	// register new chromosome
@@ -2267,7 +2268,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
   vector< vector<int> > posnm; // number of mismatches
 
   // chromosome map
-  hash_map<string, int, hash<string>,equal_to<string> > cind_map;
+  unordered_map<string, int, hash<string>,equal_to<string> > cind_map;
   vector<string> cnames;
   
 
@@ -2279,7 +2280,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
 
 
   FILE *f=fopen(fname,"rb");
-  if (!f)  { cout<<"can't open input file \""<<fname<<"\"\n"; }
+  if (!f)  { Rprintf("can't open input file \"",fname,"\"\n"); }
   else {
 
 #ifdef HAVE_LIBBZ2
@@ -2290,7 +2291,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
     if(strstr(fname,".bz2")) {
       bz2file=1;
       b=BZ2_bzReadOpen (&bzerror, f, 0, 0, NULL, 0);
-      if (bzerror != BZ_OK)  { cout<<"bzerror="<<bzerror<<endl; }
+      if (bzerror != BZ_OK)  { Rprintf("bzerror=",bzerror); }
     }
 #endif
 
@@ -2326,7 +2327,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
       
       
       // determine the chromosome index
-      hash_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
+      unordered_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
       int cind=-1;
       if(li==cind_map.end()) {
 	// register new chromosome
@@ -2438,7 +2439,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
   vector< vector<int> > poslen; // length of the match
 
   // chromosome map
-  hash_map<string, int, hash<string>,equal_to<string> > cind_map;
+  unordered_map<string, int, hash<string>,equal_to<string> > cind_map;
   vector<string> cnames;
   
 
@@ -2450,7 +2451,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
 
 
   FILE *f=fopen(fname,"rb");
-  if (!f)  { cout<<"can't open input file \""<<fname<<"\"\n"; }
+  if (!f)  { Rprintf("can't open input file \"",fname,"\"\n"); }
   else {
 
 #ifdef HAVE_LIBBZ2
@@ -2461,7 +2462,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
     if(strstr(fname,".bz2")) {
       bz2file=1;
       b=BZ2_bzReadOpen (&bzerror, f, 0, 0, NULL, 0);
-      if (bzerror != BZ_OK)  { cout<<"bzerror="<<bzerror<<endl; }
+      if (bzerror != BZ_OK)  { Rprintf("bzerror=",bzerror); }
     }
 #endif
 
@@ -2527,7 +2528,7 @@ SEXP read_eland_multi(SEXP filename,SEXP read_tag_names_R,SEXP eland_tag_length_
       
       
       // determine the chromosome index
-      hash_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
+      unordered_map<string, int, hash<string>,equal_to<string> >::const_iterator li=cind_map.find(chr);
       int cind=-1;
       if(li==cind_map.end()) {
 	// register new chromosome
